@@ -232,38 +232,36 @@ void printAllMobile(struct MobileShop* shop){
 }
 
 
-// Hàm heapify trong thuật toán heapSort cho linked list
-void heapifyLinkedList(struct MobilePhone* head, int n, int i) {
+// Hàm heapify trong thuật toán heapSort
+void heapify(struct MobilePhone** array, int n, int i) {
     int largest = i;
     int left = 2 * i + 1;
     int right = 2 * i + 2;
 
-    struct MobilePhone* current = head;
-    struct MobilePhone* largestNode = getMobileAtIndex(head, largest);
-
-    if (left < n && getMobileAtIndex(head, left)->price > largestNode->price) {
+    if (left < n && array[left]->price > array[largest]->price) {
         largest = left;
     }
-    if (right < n && getMobileAtIndex(head, right)->price > largestNode->price) {
+    if (right < n && array[right]->price > array[largest]->price) {
         largest = right;
     }
     if (largest != i) {
-        swap(&getMobileAtIndex(head, i), &getMobileAtIndex(head, largest));
-        heapifyLinkedList(head, n, largest);
+        swap(&array[i], &array[largest]);
+        heapify(array, n, largest);
     }
 }
 
 // Hàm sắp xếp heapSort cho linked list
-void heapSortLinkedList(struct MobilePhone* head, int n) {
+void heapSortLinkedList(struct MobilePhone** array, int n) {
     for (int i = n / 2 - 1; i >= 0; i--) {
-        heapifyLinkedList(head, n, i);
+        heapify(array, n, i);
     }
 
     for (int i = n - 1; i > 0; i--) {
-        swap(&getMobileAtIndex(head, 0), &getMobileAtIndex(head, i));
-        heapifyLinkedList(head, i, 0);
+        swap(&array[0], &array[i]);
+        heapify(array, i, 0);
     }
 }
+
 // Hàm in top 5 sdt đắt nhất
 void printTop5Mobile(struct MobileShop* shop) {
     if (shop->size < 5) {
