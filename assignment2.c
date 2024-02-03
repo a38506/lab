@@ -232,22 +232,29 @@ void printAllMobile(struct MobileShop* shop){
 }
 
 
-// Hàm heapify trong thuật toán heapSort cho danh sách liên kết
-void heapifyLinkedList(struct MobilePhone** head, int n, int i) {
+void swapNodes(struct MobilePhone **a, struct MobilePhone **b) {
+    struct MobilePhone *temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void heapifyLinkedList(struct MobilePhone **head, int n, int i) {
     int largest = i;
     int left = 2 * i + 1;
     int right = 2 * i + 2;
 
-    struct MobilePhone* current = *head;
-    struct MobilePhone* largestNode = *head;
+    struct MobilePhone *current = *head;
+    struct MobilePhone *largestNode = *head;
 
+    // Di chuyển con trỏ current đến nút cần so sánh
     for (int j = 0; j < largest; j++) {
         largestNode = largestNode->next;
     }
 
-    struct MobilePhone* leftNode = current;
-    struct MobilePhone* rightNode = current;
+    struct MobilePhone *leftNode = current;
+    struct MobilePhone *rightNode = current;
 
+    // Di chuyển con trỏ đến nút cần so sánh
     for (int j = 0; j < left; j++) {
         leftNode = leftNode->next;
     }
@@ -263,27 +270,31 @@ void heapifyLinkedList(struct MobilePhone** head, int n, int i) {
         largest = right;
     }
     if (largest != i) {
-        // Hoán đổi hai đối tượng trong danh sách liên kết
-        swap(&current, &largestNode);
+        // Hoán đổi chỉ số của các nút trong danh sách liên kết
+        swapNodes(&current, &largestNode);
         heapifyLinkedList(head, n, largest);
     }
 }
 
 // Hàm sắp xếp heapSort cho danh sách liên kết
-void heapSortLinkedList(struct MobilePhone** head, int n) {
+void heapSortLinkedList(struct MobilePhone **head, int n) {
     for (int i = n / 2 - 1; i >= 0; i--) {
         heapifyLinkedList(head, n, i);
     }
 
     for (int i = n - 1; i > 0; i--) {
         // Hoán đổi đối tượng đầu tiên và cuối cùng trong danh sách liên kết
-        swap(head, &head[i]);
+        struct MobilePhone *lastNode = *head;
+        for (int j = 0; j < i; j++) {
+            lastNode = lastNode->next;
+        }
+        swapNodes(&lastNode, &(*head));
         heapifyLinkedList(head, i, 0);
     }
 }
 
-// Hàm in top 5 sdt đắt nhất từ danh sách liên kết
-void printTop5Mobile(struct MobileShop* shop) {
+// Hàm in ra 5 điện thoại di động có giá cao nhất
+void printTop5Mobile(struct MobileShop *shop) {
     if (shop->size < 5) {
         printf("Not enough mobiles to print top 5\n");
         return;
@@ -292,7 +303,16 @@ void printTop5Mobile(struct MobileShop* shop) {
     // Sắp xếp danh sách liên kết bằng heapSort
     heapSortLinkedList(&shop->mobileList, shop->size);
 
+    // Cập nhật con trỏ shop->mobileList để trỏ đến nút đầu tiên
+    struct MobilePhone *current = shop->mobileList;
+    for (int i = 0; i < shop->size - 1; i++) {
+        current = current->next;
+    }
+    shop->mobileList = current;
+
     printf("Top 5 highest price mobile phones:\n");
+
+    // In ra top 5
     for (int i = 0; i < 5; i++) {
         printf("ID: %d, Model: %s, Price: %.2f\n", shop->mobileList->idMobile, shop->mobileList->model, shop->mobileList->price);
         shop->mobileList = shop->mobileList->next;
@@ -362,6 +382,7 @@ void loadToFile(struct MobileShop* shop, const char* filename) {
 int main(){
     struct MobileShop shop;
     shop.mobileList = NULL;
+    shop.size = 0;
     loadToFile(&shop, "mobile.txt");
     int choice;
     do{
@@ -420,7 +441,7 @@ int main(){
                 printf ("Enter new model: ");
                 scanf("%s", & model);
                 printf("Enter new price: ");
-                scanf("%ld", &price);
+                scanf("%lf", &price);
 
                 updateMobile(&shop, id, model, price);
                 printf("Mobile update successful\n");
